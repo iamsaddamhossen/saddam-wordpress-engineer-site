@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Asia/Dhaka
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns: ['*']
+
+  - package-ecosystem: composer
+    directory: /saddam-engineer-core
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:30'
+      timezone: Asia/Dhaka
+    open-pull-requests-limit: 5
+    groups:
+      composer-development:
+        dependency-type: development

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/bootstrap.php" colors="true" beStrictAboutOutputDuringTests="true">
+  <testsuites>
+    <testsuite name="Saddam Engineer Core">
+      <directory suffix=".php">tests</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <env name="WP_TESTS_PHPUNIT_POLYFILLS_PATH" value="vendor/yoast/phpunit-polyfills"/>
+  </php>
+</phpunit>

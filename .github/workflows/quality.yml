@@ -1,0 +1,117 @@
+name: WordPress quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-quality:
+    name: Static quality - PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.1', '8.3']
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Validate Composer metadata
+        working-directory: saddam-engineer-core
+        run: composer validate --strict --no-check-publish
+
+      - name: Install quality dependencies
+        working-directory: saddam-engineer-core
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Plugin PHP syntax
+        working-directory: saddam-engineer-core
+        run: composer syntax
+
+      - name: WordPress Coding Standards
+        working-directory: saddam-engineer-core
+        run: composer phpcs
+
+      - name: PHP compatibility
+        working-directory: saddam-engineer-core
+        run: composer compatibility
+
+      - name: Theme PHP syntax
+        run: find saddam-engineer-portfolio -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: JavaScript syntax
+        run: |
+          node --check saddam-engineer-portfolio/assets/js/main.js
+          node --check saddam-engineer-core/assets/js/assistant.js
+          node --check saddam-engineer-core/blocks/engineering-proof/editor.js
+
+      - name: JSON validation
+        run: |
+          python3 -m json.tool saddam-engineer-portfolio/theme.json >/dev/null
+          python3 -m json.tool saddam-engineer-core/blocks/engineering-proof/block.json >/dev/null
+          python3 -m json.tool saddam-engineer-core/composer.json >/dev/null
+
+  wordpress-tests:
+    name: WordPress integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+        with:
+          php-version: '8.1'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y subversion default-mysql-client
+
+      - name: Install PHP dependencies
+        working-directory: saddam-engineer-core
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install WordPress test suite
+        working-directory: saddam-engineer-core
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
+
+      - name: Run PHPUnit
+        working-directory: saddam-engineer-core
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+        run: composer test

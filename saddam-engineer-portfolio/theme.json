@@ -1,0 +1,180 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "layout": {
+      "contentSize": "760px",
+      "wideSize": "1180px"
+    },
+    "color": {
+      "defaultPalette": false,
+      "palette": [
+        {
+          "slug": "base",
+          "name": "Base",
+          "color": "#ffffff"
+        },
+        {
+          "slug": "contrast",
+          "name": "Contrast",
+          "color": "#070b13"
+        },
+        {
+          "slug": "contrast-2",
+          "name": "Contrast Soft",
+          "color": "#0d1422"
+        },
+        {
+          "slug": "accent",
+          "name": "Engineering Blue",
+          "color": "#2f6df6"
+        },
+        {
+          "slug": "ink",
+          "name": "Ink",
+          "color": "#111827"
+        },
+        {
+          "slug": "slate",
+          "name": "Slate",
+          "color": "#657187"
+        },
+        {
+          "slug": "blue",
+          "name": "Blue",
+          "color": "#2F6DF6"
+        },
+        {
+          "slug": "green",
+          "name": "Status Green",
+          "color": "#27c47a"
+        },
+        {
+          "slug": "surface",
+          "name": "Surface",
+          "color": "#F7F9FC"
+        },
+        {
+          "slug": "white",
+          "name": "White",
+          "color": "#ffffff"
+        },
+        {
+          "slug": "cyan-bluish-gray",
+          "name": "Border Gray",
+          "color": "#dfe5ef"
+        }
+      ]
+    },
+    "spacing": {
+      "units": [
+        "px",
+        "rem",
+        "em",
+        "%",
+        "vw"
+      ],
+      "spacingSizes": [
+        {
+          "slug": "20",
+          "size": "0.5rem",
+          "name": "2XS"
+        },
+        {
+          "slug": "30",
+          "size": "0.75rem",
+          "name": "XS"
+        },
+        {
+          "slug": "40",
+          "size": "1rem",
+          "name": "S"
+        },
+        {
+          "slug": "50",
+          "size": "1.5rem",
+          "name": "M"
+        },
+        {
+          "slug": "60",
+          "size": "2rem",
+          "name": "L"
+        },
+        {
+          "slug": "70",
+          "size": "3rem",
+          "name": "XL"
+        },
+        {
+          "slug": "80",
+          "size": "5rem",
+          "name": "2XL"
+        }
+      ]
+    },
+    "typography": {
+      "fluid": true,
+      "fontFamilies": [
+        {
+          "slug": "sans",
+          "name": "System Sans",
+          "fontFamily": "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        },
+        {
+          "slug": "mono",
+          "name": "System Mono",
+          "fontFamily": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+        }
+      ],
+      "fontSizes": [
+        {
+          "slug": "small",
+          "name": "Small",
+          "size": "0.875rem"
+        },
+        {
+          "slug": "medium",
+          "name": "Medium",
+          "size": "1rem"
+        },
+        {
+          "slug": "large",
+          "name": "Large",
+          "size": "1.35rem"
+        },
+        {
+          "slug": "x-large",
+          "name": "Extra Large",
+          "size": "clamp(2rem, 5vw, 4.5rem)"
+        }
+      ]
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "#ffffff",
+      "text": "#263247"
+    },
+    "spacing": {
+      "blockGap": "1.5rem"
+    },
+    "typography": {
+      "fontFamily": "\"Aptos\", \"Segoe UI Variable\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", system-ui, sans-serif",
+      "lineHeight": "1.65"
+    },
+    "elements": {
+      "link": {
+        "color": {
+          "text": "#2f6df6"
+        }
+      },
+      "heading": {
+        "typography": {
+          "fontWeight": "750",
+          "lineHeight": "1.08"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,79 @@
+name: Build WordPress release ZIPs
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing semantic version tag to package, for example v1.0.1
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-release:
+    name: Build and publish release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Verify release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release tag must use semantic versioning, for example v1.0.1"
+            exit 1
+          fi
+          git rev-parse "$RELEASE_TAG" >/dev/null
+
+      - name: Build clean packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dist
+          mkdir -p dist/plugin dist/theme
+          rsync -a saddam-engineer-core/ dist/plugin/saddam-engineer-core/ \
+            --exclude '.git' --exclude 'vendor' --exclude 'tests' --exclude 'bin' \
+            --exclude 'composer.json' --exclude 'composer.lock' \
+            --exclude 'phpcs.xml.dist' --exclude 'phpunit.xml.dist'
+          rsync -a saddam-engineer-portfolio/ dist/theme/saddam-engineer-portfolio/ --exclude '.git'
+          (cd dist/plugin && zip -qr "../saddam-engineer-core-${RELEASE_TAG}.zip" saddam-engineer-core)
+          (cd dist/theme && zip -qr "../saddam-engineer-portfolio-${RELEASE_TAG}.zip" saddam-engineer-portfolio)
+          (cd dist && sha256sum *.zip > SHA256SUMS.txt)
+
+      - name: Inspect packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -t "dist/saddam-engineer-core-${RELEASE_TAG}.zip"
+          unzip -t "dist/saddam-engineer-portfolio-${RELEASE_TAG}.zip"
+          ! unzip -l "dist/saddam-engineer-core-${RELEASE_TAG}.zip" | grep -E '/(vendor|tests|bin)/|composer\.(json|lock)|php(cs|unit)'
+
+      - name: Create GitHub release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "$RELEASE_TAG" \
+            "dist/saddam-engineer-core-${RELEASE_TAG}.zip" \
+            "dist/saddam-engineer-portfolio-${RELEASE_TAG}.zip" \
+            "dist/SHA256SUMS.txt" \
+            --verify-tag \
+            --generate-notes \
+            --title "$RELEASE_TAG"
